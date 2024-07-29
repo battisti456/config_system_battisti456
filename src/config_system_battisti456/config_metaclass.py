@@ -26,7 +26,7 @@ class Config_Metaclass(type):
                 return config_override.get_property(cls.__name, name)
         return type.__getattribute__(cls,name)
     def __getitem__(cls:T, override: 'Config_Override') -> T:
-        class _(cls,overrides = cls._overrides + (override,), name_set = T._name):#type:ignore
+        class _(cls,overrides = cls._overrides + (override,), name_set = cls._name):
             ...
         return _
     def _get_description(cls, name:str) -> str:
