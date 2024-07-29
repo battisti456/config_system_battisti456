@@ -21,7 +21,7 @@ class Config_Metaclass(type):
     def __getattribute__(cls, name: str) -> Any:
         if name in ('_overrides','_name'):
             return type.__getattribute__(cls,name)
-        for config_override in cls._overrides.__reversed__():
+        for config_override in reversed(cls._overrides):
             if config_override.defines_property(cls.__name, name):
                 return config_override.get_property(cls.__name, name)
         return super().__getattribute__(name)
