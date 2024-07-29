@@ -7,11 +7,22 @@ from .config_override import Config_Override
 
 T = TypeVar('T', bound='Config_Metaclass')
 
+def merge_base_overrides(bases:tuple[type, ...]) -> tuple[Config_Override, ...]:
+    overrides:tuple[tuple[Config_Override, ...], ...] = tuple(
+        base._overrides for base in bases if hasattr(base,'_overrides')#type: ignore
+    )
+    to_return:list[Config_Override] = []
+    for override_group in overrides:
+        for config_override in override_group:
+            if config_override not in to_return:
+                to_return.append(config_override)
+    return tuple(to_return)
+
 class Config_Metaclass(type):
     _overrides: tuple['Config_Override',...]
     _name: str
     def __new__(mcs, name:str, bases:tuple[type, ...], namespace:dict[str, Any], overrides:tuple['Config_Override', ...] = tuple(), name_set: str| None = None) -> None:
-        namespace['_overrides'] = overrides
+        namespace['_overrides'] = merge_base_overrides(bases) + overrides
         if name_set is None:
             namespace['_name'] = namespace['__module__']
         else:
