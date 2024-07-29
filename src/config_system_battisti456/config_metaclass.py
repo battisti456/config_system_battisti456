@@ -10,13 +10,13 @@ T = TypeVar('T', bound='Config_Metaclass')
 class Config_Metaclass(type):
     _overrides: tuple['Config_Override',...]
     _name: str
-    def __new__(cls, name:str, bases:tuple[type, ...], namespace:dict[str, Any], overrides:tuple['Config_Override', ...] = tuple(), name_set: str| None = None) -> None:
+    def __new__(mcs, name:str, bases:tuple[type, ...], namespace:dict[str, Any], overrides:tuple['Config_Override', ...] = tuple(), name_set: str| None = None) -> None:
         namespace['_overrides'] = overrides
         if name_set is None:
-            namespace['_name'] = cls.__module__
+            namespace['_name'] = namespace['__module__']
         else:
             namespace['_name'] = name_set
-        return super().__new__(cls,name,bases,namespace)#type:ignore
+        return super().__new__(mcs,name,bases,namespace)#type:ignore
     @override
     def __getattribute__(cls, name: str) -> Any:
         if name in ('_overrides','_name'):
