@@ -22,8 +22,8 @@ class Config_Metaclass(type):
         if name in ('_overrides','_name'):
             return type.__getattribute__(cls,name)
         for config_override in reversed(cls._overrides):
-            if config_override.defines_property(cls.__name, name):
-                return config_override.get_property(cls.__name, name)
+            if config_override.defines_property(cls._name, name):
+                return config_override.get_property(cls._name, name)
         return type.__getattribute__(cls,name)
     def __getitem__(cls:T, override: 'Config_Override') -> T:
         class _(cls,overrides = cls._overrides + (override,), name_set = cls._name):
