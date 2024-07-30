@@ -6,11 +6,13 @@ from typing import Any, Callable, Optional
 class Config_Item():
     description:str
     checker:Callable[[Any],bool]
+    level:int = 0
 
 class Float(Config_Item):
     def __init__(
             self,
             *,
+            level:int = 0,
             description:Optional[str] = None,
             min_value:Optional[float] = None,
             max_value:Optional[float] = None):
@@ -33,12 +35,13 @@ class Float(Config_Item):
                 if value > max_value:
                     return False
             return True
-        super().__init__(add_text,checker)
+        super().__init__(add_text,checker,level)
 
 class Integer(Config_Item):
     def __init__(
             self,
             *,
+            level:int = 0,
             description:Optional[str] = None,
             min_value:Optional[int] = None,
             max_value:Optional[int] = None
@@ -62,12 +65,13 @@ class Integer(Config_Item):
                 if value > max_value:
                     return False
             return True
-        super().__init__(add_text,checker)
+        super().__init__(add_text,checker,level)
 
 class Ratio(Config_Item):
     def __init__(
             self,
             *,
+            level:int = 0,
             description:Optional[str] = None):
         add_text:str = 'a ratio (value between 0 and 1)'
         if description is not None:
@@ -76,4 +80,4 @@ class Ratio(Config_Item):
             if not isinstance(value,float|int):
                 return False
             return True
-        super().__init__(add_text,checker)
+        super().__init__(add_text,checker,level)
