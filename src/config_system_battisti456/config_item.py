@@ -1,7 +1,18 @@
+import os
 from dataclasses import dataclass
-from typing import Any, Callable, TypedDict, Unpack, NotRequired, TypeVar, Generic, Sequence
+from typing import (
+    Any,
+    Callable,
+    Generic,
+    Literal,
+    NotRequired,
+    Sequence,
+    TypedDict,
+    TypeVar,
+    Unpack,
+)
 
-from typeguard import check_type, TypeCheckError
+from typeguard import TypeCheckError, check_type
 
 
 @dataclass(frozen=True)
@@ -129,4 +140,23 @@ class Bool(Config_Item):
             add_text += f"; {kwargs['description']}"
         def checker(value:Any) -> bool:
             return isinstance(value,bool)
+        super().__init__(add_text,checker,kwargs['level'])
+
+class PathArgs(ConfigArgs, total = False):
+    mode:Literal['exists','file','directory']
+
+class Path(Config_Item):
+    def __init__(self,**kwargs:Unpack[PathArgs]):
+        add_text:str = "a path"
+        if 'description' in kwargs:
+            add_text += f"; {kwargs['description']}"
+        def checker(value:Any) -> bool:
+            if not isinstance(value,str):
+                return False
+            if 'mode' not in kwargs or kwargs['mode'] == 'exists':
+                return os.path.exists(value)
+            elif kwargs['mode'] == 'file':
+                return os.path.isfile(value)
+            else:
+                return os.path.isdir(value)
         super().__init__(add_text,checker,kwargs['level'])
