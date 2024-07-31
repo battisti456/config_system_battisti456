@@ -14,16 +14,22 @@ from typing import (
 
 from typeguard import TypeCheckError, check_type
 
+def get_opt(kwargs:'ConfigArgs') -> bool:
+    if 'optional' in kwargs:
+        return kwargs['optional']
+    return False
 
 @dataclass(frozen=True)
 class Config_Item():
     description:str
     checker:Callable[[Any],bool]
     level:int = 0
+    optional:bool = False
 
 class ConfigArgs(TypedDict):
     level:int
     description:NotRequired[str]
+    optional:NotRequired[bool]
 
 NumVar = TypeVar('NumVar',bound=int|float)
 
@@ -60,7 +66,7 @@ class _Num(Generic[NumVar],Config_Item):
                 if value > kwargs['max_value']:
                     return False
             return True
-        super().__init__(add_text,checker,kwargs['level'])
+        super().__init__(add_text,checker,kwargs['level'],get_opt(kwargs))
 
 class Float(_Num[float|int]):
     NUM_DESCRIPTION = 'a floating point number'
@@ -76,7 +82,7 @@ class Ratio(Config_Item):
             if not isinstance(value,float|int):
                 return False
             return True
-        super().__init__(add_text,checker,kwargs['level'])
+        super().__init__(add_text,checker,kwargs['level'],get_opt(kwargs))
 
 class RangeArgs(Generic[NumVar],ConfigArgs,OnlyNumArgs[NumVar]):
     ...
@@ -113,11 +119,11 @@ class _Range(Generic[NumVar],Config_Item):
             if value[0] > value[1]:
                 return False
             return True
-        super().__init__(add_text,checker,kwargs['level'])
+        super().__init__(add_text,checker,kwargs['level'],get_opt(kwargs))
 
 class FloatRange(_Range[float|int]):
     NUM_DESCRIPTION = "a range represented by an array of two floats"
-class IntRange(_Range[int]):
+class IntegerRange(_Range[int]):
     NUM_DESCRIPTION = "a range represented by an array of two integers"
 class FloatBox(_Range[float|int]):
     NUM_DESCRIPTION = "two floating point numbers"
@@ -131,7 +137,7 @@ class String(Config_Item):
             add_text += f"; {kwargs['description']}"
         def checker(value:Any) -> bool:
             return isinstance(value,str)
-        super().__init__(add_text,checker,kwargs['level'])
+        super().__init__(add_text,checker,kwargs['level'],get_opt(kwargs))
 
 class Bool(Config_Item):
     def __init__(self,**kwargs:Unpack[ConfigArgs]):
@@ -140,7 +146,7 @@ class Bool(Config_Item):
             add_text += f"; {kwargs['description']}"
         def checker(value:Any) -> bool:
             return isinstance(value,bool)
-        super().__init__(add_text,checker,kwargs['level'])
+        super().__init__(add_text,checker,kwargs['level'],get_opt(kwargs))
 
 class PathArgs(ConfigArgs, total = False):
     mode:Literal['exists','file','directory']
@@ -159,4 +165,6 @@ class Path(Config_Item):
                 return os.path.isfile(value)
             else:
                 return os.path.isdir(value)
-        super().__init__(add_text,checker,kwargs['level'])
+        super().__init__(add_text,checker,kwargs['level'],get_opt(kwargs))
+
+
