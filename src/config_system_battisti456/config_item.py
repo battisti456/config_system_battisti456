@@ -108,6 +108,10 @@ class FloatRange(_Range[float|int]):
     NUM_DESCRIPTION = "a range represented by an array of two floats"
 class IntRange(_Range[int]):
     NUM_DESCRIPTION = "a range represented by an array of two integers"
+class FloatBox(_Range[float|int]):
+    NUM_DESCRIPTION = "two floating point numbers"
+class IntegerBox(_Range[int]):
+    NUM_DESCRIPTION = "two integers"
 
 class String(Config_Item):
     def __init__(self,**kwargs:Unpack[ConfigArgs]):
